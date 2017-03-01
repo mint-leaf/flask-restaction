@@ -187,7 +187,10 @@ class Api:
         validators (dict): custom validators
         metafile (str): path of metafile
         docs (str): api docs
-        right (bool): control if doc_api can be visited
+        right (bool): control if doc_api can be visited, if right=True
+        the right is depend on current_app's DEBUG param, if right=False,
+        the doc_api html is available no matter what current_app's DEBUG
+        param
     Attributes:
         validators (dict): custom validators
         meta (dict): metadata of api
