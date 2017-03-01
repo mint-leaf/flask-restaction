@@ -187,12 +187,14 @@ class Api:
         validators (dict): custom validators
         metafile (str): path of metafile
         docs (str): api docs
+        right (bool): control if doc_api can be visited
     Attributes:
         validators (dict): custom validators
         meta (dict): metadata of api
     """
 
-    def __init__(self, app, validators=None, metafile=None, docs=""):
+    def __init__(self, app, validators=None, metafile=None, right=None,
+                 docs=""):
         self.before_request_funcs = []
         self.after_request_funcs = []
         self.handle_error_func = None
@@ -206,6 +208,10 @@ class Api:
         else:
             with open(metafile) as f:
                 self.meta = json.load(f)
+        if right is not None:
+            self.right = right
+        else:
+            self.right = False
         meta_api = parse_docs(docs, ["$shared", "$error"])
         self.meta["$desc"] = meta_api.get("$desc", "")
         self.meta["$title"] = get_title(self.meta.get('$desc'), 'Document')
@@ -235,6 +241,9 @@ class Api:
         """
         # API_URL_PREFIX maybe diffierent in development and production,
         # so pick it from app.config other than store it in metafile
+        if self.right:
+            if not current_app.config["DEBUG"]:
+                return flask_abort(404, "norights")
         self.meta["$url_prefix"] = current_app.config.get("API_URL_PREFIX", "")
         mediatype = request.accept_mimetypes.best_match(
             ['text/html', 'application/json'], default='text/html')
